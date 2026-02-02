@@ -1,0 +1,69 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body * {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (min-width: 768px) {
+  #wd-kambaz .wd-main-content-offset {
+    padding-left: 140px !important;
+  }
+}
+
+.list-group.wd > .list-group-item.active {
+  color: black;
+  background-color: white;
+  border-left: 3px solid black !important;
+}
+
+.btn-secondary {
+  --bs-btn-color: #000 !important;
+  --bs-btn-bg: #c7cdd1 !important;
+  --bs-btn-border-color: #c7cdd1 !important;
+  --bs-btn-hover-color: #fff !important;
+}
+
+.bg-secondary {
+  --bs-secondary-rgb: 199, 205, 209;
+}
+
+.list-group-item {
+  --bs-list-group-border-color: gray;
+}
+
+.wd-lesson {
+  border-left: 3px solid green !important;
+}
+
+.border-gray {
+  border-color: gray;
+}
+
+#wd-kambaz-navigation .wd-nav-item {
+  background-color: black;
+  border: 0;
+  text-align: center;
+}
+#wd-kambaz-navigation .wd-nav-item .wd-nav-link {
+  color: white;
+  text-decoration: none;
+}
+#wd-kambaz-navigation .wd-nav-item .wd-nav-icon {
+  color: #dc3545;
+  font-size: 2.5rem;
+}
+#wd-kambaz-navigation .wd-nav-item.wd-nav-account .wd-nav-icon {
+  color: white;
+}
+#wd-kambaz-navigation .wd-nav-item.wd-nav-active {
+  background-color: white;
+}
+#wd-kambaz-navigation .wd-nav-item.wd-nav-active .wd-nav-link {
+  color: #dc3545;
+}
+#wd-kambaz-navigation .wd-nav-item.wd-nav-active .wd-nav-icon {
+  color: #dc3545;
+}

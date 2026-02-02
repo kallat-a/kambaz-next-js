@@ -2,42 +2,63 @@ import Link from "next/link";
 
 export default function CourseNavigation({ cid }: { cid: string }) {
   return (
-    <div id="wd-courses-navigation">
-      <Link href={`/courses/${cid}/home`} id="wd-course-home-link">
+    <div id="wd-courses-navigation" className="wd list-group fs-5 rounded-0">
+      <Link
+        href={`/courses/${cid}/home`}
+        id="wd-course-home-link"
+        className="list-group-item active border-0"
+      >
         Home
       </Link>
-      <br />
-      <Link href={`/courses/${cid}/modules`} id="wd-course-modules-link">
+      <Link
+        href={`/courses/${cid}/modules`}
+        id="wd-course-modules-link"
+        className="list-group-item text-danger border-0"
+      >
         Modules
       </Link>
-      <br />
-      <Link href={`/courses/${cid}/piazza`} id="wd-course-piazza-link">
+      <Link
+        href={`/courses/${cid}/piazza`}
+        id="wd-course-piazza-link"
+        className="list-group-item text-danger border-0"
+      >
         Piazza
       </Link>
-      <br />
-      <Link href={`/courses/${cid}/zoom`} id="wd-course-zoom-link">
+      <Link
+        href={`/courses/${cid}/zoom`}
+        id="wd-course-zoom-link"
+        className="list-group-item text-danger border-0"
+      >
         Zoom
       </Link>
-      <br />
       <Link
         href={`/courses/${cid}/assignments`}
         id="wd-course-assignments-link"
+        className="list-group-item text-danger border-0"
       >
         Assignments
       </Link>
-      <br />
-      <Link href={`/courses/${cid}/quizzes`} id="wd-course-quizzes-link">
+      <Link
+        href={`/courses/${cid}/quizzes`}
+        id="wd-course-quizzes-link"
+        className="list-group-item text-danger border-0"
+      >
         Quizzes
       </Link>
-      <br />
-      <Link href={`/courses/${cid}/grades`} id="wd-course-grades-link">
+      <Link
+        href={`/courses/${cid}/grades`}
+        id="wd-course-grades-link"
+        className="list-group-item text-danger border-0"
+      >
         Grades
       </Link>
-      <br />
-      <Link href={`/courses/${cid}/people/table`} id="wd-course-people-link">
+      <Link
+        href={`/courses/${cid}/people/table`}
+        id="wd-course-people-link"
+        className="list-group-item text-danger border-0"
+      >
         People
       </Link>
-      <br />
     </div>
   );
 }

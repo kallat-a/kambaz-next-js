@@ -4,7 +4,9 @@ export default function Labs() {
   return (
     <div id="wd-labs">
       <h1>Labs</h1>
-      <p>Student Name: Ahaan Kallat, Section: CS4550 33211 SEC 02 Spring 2026</p>
+      <p>
+        Student Name: Ahaan Kallat, Section: CS4550 33211 SEC 02 Spring 2026
+      </p>
       <ul>
         <li>
           <Link href="/labs/lab1" id="wd-lab1-link">
@@ -23,7 +25,9 @@ export default function Labs() {
         </li>
       </ul>
       <p>
-        <Link href="/" id="wd-kambaz-link-from-labs">Kambaz Application</Link>
+        <Link href="/" id="wd-kambaz-link">
+          Kambaz
+        </Link>
       </p>
       <p>
         <a href="https://github.com/kallat-a/kambaz-next-js" id="wd-github">
