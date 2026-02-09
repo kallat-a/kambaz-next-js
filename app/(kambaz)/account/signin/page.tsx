@@ -9,6 +9,7 @@ export default function Signin() {
         <div className="mb-2">
           <FormControl
             id="wd-username"
+            defaultValue="alice"
             placeholder="username"
             className="mb-2"
           />
@@ -16,6 +17,7 @@ export default function Signin() {
         <div className="mb-2">
           <FormControl
             id="wd-password"
+            defaultValue="123"
             placeholder="password"
             type="password"
             className="mb-2"

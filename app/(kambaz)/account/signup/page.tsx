@@ -7,10 +7,15 @@ export default function Signup() {
       <h1>Signup</h1>
       <Form>
         <div className="mb-2">
-          <FormControl placeholder="username" className="wd-username" />
+          <FormControl
+            defaultValue="alice"
+            placeholder="username"
+            className="wd-username"
+          />
         </div>
         <div className="mb-2">
           <FormControl
+            defaultValue="123"
             placeholder="password"
             type="password"
             className="wd-password"
@@ -18,6 +23,7 @@ export default function Signup() {
         </div>
         <div className="mb-2">
           <FormControl
+            defaultValue="123"
             placeholder="verify password"
             type="password"
             className="wd-password-verify"
