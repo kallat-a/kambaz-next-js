@@ -10,21 +10,13 @@ import { usePathname } from "next/navigation";
 
 export default function KambazNavigation() {
   const pathname = usePathname();
-
-  function activeClass(active: boolean) {
-    if (active) {
-      return " wd-nav-active";
-    }
-    return "";
-  }
-
-  const accountActive = pathname.startsWith("/account");
-  const dashboardActive = pathname === "/dashboard";
-  const coursesActive = pathname.startsWith("/courses");
-  const calendarActive = pathname === "/calendar";
-  const inboxActive = pathname === "/inbox";
-  const labsActive = pathname.startsWith("/labs");
-
+  const links = [
+    { label: "Dashboard", path: "/dashboard", icon: AiOutlineDashboard },
+    { label: "Courses", path: "/dashboard", icon: LiaBookSolid },
+    { label: "Calendar", path: "/Calendar", icon: IoCalendarOutline },
+    { label: "Inbox", path: "/Inbox", icon: FaInbox },
+    { label: "Labs", path: "/labs", icon: LiaCogSolid },
+  ];
   return (
     <ListGroup
       id="wd-kambaz-navigation"
@@ -32,56 +24,42 @@ export default function KambazNavigation() {
       className="rounded-0 position-fixed bottom-0 top-0 d-none d-md-block bg-black z-2"
     >
       <ListGroupItem
-        className="bg-black border-0 text-center"
+        id="wd-neu-link"
         as="a"
         target="_blank"
         href="https://www.northeastern.edu/"
-        id="wd-neu-link"
+        action
+        className="bg-black border-0 text-center"
       >
         <img src="/images/NEU.png" width="75px" alt="Northeastern University" />
       </ListGroupItem>
-      <ListGroupItem className={"wd-nav-item wd-nav-account" + activeClass(accountActive)}>
-        <Link href="/account" id="wd-account-link" className="wd-nav-link">
-          <FaRegCircleUser className="wd-nav-icon" />
-          <br />
-          Account
-        </Link>
+      <ListGroupItem
+        as={Link}
+        href="/account"
+        className={`text-center border-0 bg-black ${
+          pathname.includes("account") ? "bg-white text-danger" : "bg-black text-white"
+        }`}
+      >
+        <FaRegCircleUser
+          className={`fs-1 ${pathname.includes("account") ? "text-danger" : "text-white"}`}
+        />
+        <br />
+        Account
       </ListGroupItem>
-      <ListGroupItem className={"wd-nav-item" + activeClass(dashboardActive)}>
-        <Link href="/dashboard" id="wd-dashboard-link" className="wd-nav-link">
-          <AiOutlineDashboard className="wd-nav-icon" />
+      {links.map((link) => (
+        <ListGroupItem
+          key={link.path + link.label}
+          as={Link}
+          href={link.path}
+          className={`bg-black text-center border-0 ${
+            pathname.includes(link.label.toLowerCase()) ? "text-danger bg-white" : "text-white bg-black"
+          }`}
+        >
+          {link.icon({ className: "fs-1 text-danger" })}
           <br />
-          Dashboard
-        </Link>
-      </ListGroupItem>
-      <ListGroupItem className={"wd-nav-item" + activeClass(coursesActive)}>
-        <Link href="/dashboard" id="wd-course-link" className="wd-nav-link">
-          <LiaBookSolid className="wd-nav-icon" />
-          <br />
-          Courses
-        </Link>
-      </ListGroupItem>
-      <ListGroupItem className={"wd-nav-item" + activeClass(calendarActive)}>
-        <Link href="/calendar" id="wd-calendar-link" className="wd-nav-link">
-          <IoCalendarOutline className="wd-nav-icon" />
-          <br />
-          Calendar
-        </Link>
-      </ListGroupItem>
-      <ListGroupItem className={"wd-nav-item" + activeClass(inboxActive)}>
-        <Link href="/inbox" id="wd-inbox-link" className="wd-nav-link">
-          <FaInbox className="wd-nav-icon" />
-          <br />
-          Inbox
-        </Link>
-      </ListGroupItem>
-      <ListGroupItem className={"wd-nav-item" + activeClass(labsActive)}>
-        <Link href="/labs" id="wd-labs-link" className="wd-nav-link">
-          <LiaCogSolid className="wd-nav-icon" />
-          <br />
-          Labs
-        </Link>
-      </ListGroupItem>
+          {link.label}
+        </ListGroupItem>
+      ))}
     </ListGroup>
   );
 }
