@@ -11,11 +11,18 @@ import ModulesControls from "./ModulesControls";
 import LessonControlButtons from "./LessonControlButtons";
 import ModuleControlButtons from "./ModuleControlButtons";
 
+const EDITABLE_ROLES = ["FACULTY", "ADMIN", "TA"];
+
 export default function Modules() {
   const { cid } = useParams();
   const [moduleName, setModuleName] = useState("");
   const { modules } = useSelector((state: RootState) => state.modulesReducer);
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer,
+  );
   const dispatch = useDispatch();
+  const canEdit =
+    currentUser && EDITABLE_ROLES.includes((currentUser as any).role);
 
   return (
     <div className="wd-modules">
@@ -26,6 +33,7 @@ export default function Modules() {
           dispatch(addModule({ name: moduleName, course: cid }));
           setModuleName("");
         }}
+        canEdit={canEdit}
       />
       <br />
       <br />
@@ -40,8 +48,9 @@ export default function Modules() {
             >
               <div className="wd-title p-3 ps-2 bg-secondary">
                 <BsGripVertical className="me-2 fs-3" />
-                {!module.editing && module.name}
-                {module.editing && (
+                {!canEdit && module.name}
+                {canEdit && !module.editing && module.name}
+                {canEdit && module.editing && (
                   <FormControl
                     className="w-50 d-inline-block"
                     onChange={(e) =>
@@ -57,13 +66,15 @@ export default function Modules() {
                     defaultValue={module.name}
                   />
                 )}
-                <ModuleControlButtons
-                  moduleId={module._id}
-                  deleteModule={(moduleId) => {
-                    dispatch(deleteModule(moduleId));
-                  }}
-                  editModule={(moduleId) => dispatch(editModule(moduleId))}
-                />
+                {canEdit && (
+                  <ModuleControlButtons
+                    moduleId={module._id}
+                    deleteModule={(moduleId) => {
+                      dispatch(deleteModule(moduleId));
+                    }}
+                    editModule={(moduleId) => dispatch(editModule(moduleId))}
+                  />
+                )}
               </div>
               {module.lessons && (
                 <ListGroup className="wd-lessons rounded-0">
