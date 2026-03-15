@@ -30,6 +30,8 @@ function formatDate(iso: string) {
   });
 }
 
+const EDITABLE_ROLES = ["FACULTY", "ADMIN", "TA"];
+
 export default function Assignments() {
   const { cid } = useParams();
   const router = useRouter();
@@ -37,8 +39,13 @@ export default function Assignments() {
   const { assignments } = useSelector(
     (state: RootState) => state.assignmentsReducer,
   );
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer,
+  );
   const list = assignments.filter((a: any) => a.course === cid);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const canEdit =
+    currentUser && EDITABLE_ROLES.includes((currentUser as any).role);
 
   const handleDeleteConfirm = () => {
     if (deleteTarget) {
@@ -59,22 +66,24 @@ export default function Assignments() {
             id="wd-search-assignment"
           />
         </InputGroup>
-        <div className="d-flex">
-          <Button
-            variant="secondary"
-            className="me-2"
-            id="wd-add-assignment-group"
-          >
-            <FaPlus className="me-1" /> Group
-          </Button>
-          <Button
-            variant="danger"
-            id="wd-add-assignment"
-            onClick={() => router.push(`/courses/${cid}/assignments/new`)}
-          >
-            <FaPlus className="me-1" /> Assignment
-          </Button>
-        </div>
+        {canEdit && (
+          <div className="d-flex">
+            <Button
+              variant="secondary"
+              className="me-2"
+              id="wd-add-assignment-group"
+            >
+              <FaPlus className="me-1" /> Group
+            </Button>
+            <Button
+              variant="danger"
+              id="wd-add-assignment"
+              onClick={() => router.push(`/courses/${cid}/assignments/new`)}
+            >
+              <FaPlus className="me-1" /> Assignment
+            </Button>
+          </div>
+        )}
       </div>
       <ListGroup className="rounded-0 mt-4" id="wd-assignments-list">
         <ListGroupItem className="wd-module p-0 mb-5 fs-5 border-gray">
@@ -130,12 +139,14 @@ export default function Assignments() {
                   </div>
                   <div className="d-flex align-items-center">
                     <LessonControlButtons />
-                    <FaTrash
-                      className="text-danger ms-2"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => setDeleteTarget(a._id)}
-                      title="Delete assignment"
-                    />
+                    {canEdit && (
+                      <FaTrash
+                        className="text-danger ms-2"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setDeleteTarget(a._id)}
+                        title="Delete assignment"
+                      />
+                    )}
                   </div>
                 </div>
               </ListGroupItem>

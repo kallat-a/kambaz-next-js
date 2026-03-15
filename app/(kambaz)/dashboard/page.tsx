@@ -18,6 +18,8 @@ import {
   FormControl,
 } from "react-bootstrap";
 
+const EDITABLE_ROLES = ["FACULTY", "ADMIN", "TA"];
+
 export default function Dashboard() {
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
   const { currentUser } = useSelector(
@@ -27,6 +29,8 @@ export default function Dashboard() {
     (state: RootState) => state.enrollmentsReducer,
   );
   const dispatch = useDispatch();
+  const canEditCourse =
+    currentUser && EDITABLE_ROLES.includes((currentUser as any).role);
   const [course, setCourse] = useState<any>({
     _id: "0",
     name: "New Course",
@@ -53,46 +57,62 @@ export default function Dashboard() {
     <div className="p-4" id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1>
       <hr />
-      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-        <h5 className="mb-0">New Course</h5>
-        <div className="d-flex gap-2 align-items-center">
-          <Button
-            variant="warning"
-            id="wd-update-course-click"
-            onClick={() => dispatch(updateCourse(course))}
-          >
-            Update
-          </Button>
+      {canEditCourse && (
+        <>
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <h5 className="mb-0">New Course</h5>
+            <div className="d-flex gap-2 align-items-center">
+              <Button
+                variant="warning"
+                id="wd-update-course-click"
+                onClick={() => dispatch(updateCourse(course))}
+              >
+                Update
+              </Button>
+              <Button
+                variant="primary"
+                id="wd-add-new-course-click"
+                onClick={() => dispatch(addNewCourse(course))}
+              >
+                Add
+              </Button>
+              <Button
+                variant="primary"
+                id="wd-enrollments-click"
+                onClick={() => setShowAllCourses((s) => !s)}
+              >
+                Enrollments
+              </Button>
+            </div>
+          </div>
+          <FormControl
+            value={course.name}
+            className="mb-2"
+            onChange={(e) => setCourse({ ...course, name: e.target.value })}
+          />
+          <FormControl
+            as="textarea"
+            value={course.description}
+            rows={3}
+            onChange={(e) =>
+              setCourse({ ...course, description: e.target.value })
+            }
+          />
+          <hr />
+        </>
+      )}
+      {currentUser && !canEditCourse && (
+        <div className="mb-2">
           <Button
             variant="primary"
-            id="wd-add-new-course-click"
-            onClick={() => dispatch(addNewCourse(course))}
+            id="wd-enrollments-click"
+            onClick={() => setShowAllCourses((s) => !s)}
           >
-            Add
+            Enrollments
           </Button>
-          {currentUser && (
-            <Button
-              variant="primary"
-              id="wd-enrollments-click"
-              onClick={() => setShowAllCourses((s) => !s)}
-            >
-              Enrollments
-            </Button>
-          )}
+          <hr />
         </div>
-      </div>
-      <FormControl
-        value={course.name}
-        className="mb-2"
-        onChange={(e) => setCourse({ ...course, name: e.target.value })}
-      />
-      <FormControl
-        as="textarea"
-        value={course.description}
-        rows={3}
-        onChange={(e) => setCourse({ ...course, description: e.target.value })}
-      />
-      <hr />
+      )}
       <h2 id="wd-dashboard-published">
         Published Courses ({displayCourses.length})
       </h2>
@@ -165,26 +185,30 @@ export default function Dashboard() {
                         <Button variant="primary">Go</Button>
                       </Link>
                     )}
-                    <Button
-                      variant="warning"
-                      id="wd-edit-course-click"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCourse(c);
-                      }}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="danger"
-                      id="wd-delete-course-click"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        dispatch(deleteCourse(c._id));
-                      }}
-                    >
-                      Delete
-                    </Button>
+                    {canEditCourse && (
+                      <>
+                        <Button
+                          variant="warning"
+                          id="wd-edit-course-click"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCourse(c);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="danger"
+                          id="wd-delete-course-click"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            dispatch(deleteCourse(c._id));
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </CardBody>
               </Card>
