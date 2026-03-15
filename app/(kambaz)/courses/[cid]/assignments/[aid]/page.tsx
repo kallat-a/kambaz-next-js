@@ -16,6 +16,8 @@ const emptyAssignment = {
   availableUntil: "2026-03-20",
 };
 
+const EDITABLE_ROLES = ["FACULTY", "ADMIN", "TA"];
+
 export default function AssignmentEditor() {
   const { cid, aid } = useParams();
   const router = useRouter();
@@ -23,8 +25,13 @@ export default function AssignmentEditor() {
   const { assignments } = useSelector(
     (state: RootState) => state.assignmentsReducer,
   );
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer,
+  );
   const existing = assignments.find((a: any) => a._id === aid);
   const isNew = aid === "new";
+  const canEdit =
+    currentUser && EDITABLE_ROLES.includes((currentUser as any).role);
 
   const [title, setTitle] = useState(emptyAssignment.title);
   const [description, setDescription] = useState(emptyAssignment.description);
@@ -50,6 +57,12 @@ export default function AssignmentEditor() {
     }
   }, [isNew, existing]);
 
+  useEffect(() => {
+    if (isNew && !canEdit && cid) {
+      router.replace(`/courses/${cid}/assignments`);
+    }
+  }, [isNew, canEdit, cid, router]);
+
   const goBack = () => router.push(`/courses/${cid}/assignments`);
 
   const handleSave = () => {
@@ -70,6 +83,10 @@ export default function AssignmentEditor() {
     goBack();
   };
 
+  if (isNew && !canEdit) {
+    return null;
+  }
+
   return (
     <div id="wd-assignments-editor" className="p-3">
       <div className="mb-3">
@@ -77,8 +94,10 @@ export default function AssignmentEditor() {
         <FormControl
           id="wd-name"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={canEdit ? (e) => setTitle(e.target.value) : undefined}
           placeholder="Assignment Name"
+          readOnly={!canEdit}
+          disabled={!canEdit}
         />
       </div>
       <div className="mb-3">
@@ -88,8 +107,10 @@ export default function AssignmentEditor() {
           id="wd-description"
           rows={5}
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={canEdit ? (e) => setDescription(e.target.value) : undefined}
           placeholder="New Assignment Description"
+          readOnly={!canEdit}
+          disabled={!canEdit}
         />
       </div>
       <Row className="mb-3">
@@ -101,7 +122,11 @@ export default function AssignmentEditor() {
             type="number"
             id="wd-points"
             value={points}
-            onChange={(e) => setPoints(Number(e.target.value) || 0)}
+            onChange={
+              canEdit ? (e) => setPoints(Number(e.target.value) || 0) : undefined
+            }
+            readOnly={!canEdit}
+            disabled={!canEdit}
           />
         </Col>
       </Row>
@@ -114,7 +139,9 @@ export default function AssignmentEditor() {
             type="date"
             id="wd-due-date"
             value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
+            onChange={canEdit ? (e) => setDueDate(e.target.value) : undefined}
+            readOnly={!canEdit}
+            disabled={!canEdit}
           />
         </Col>
       </Row>
@@ -127,7 +154,11 @@ export default function AssignmentEditor() {
             type="date"
             id="wd-available-from"
             value={availableFrom}
-            onChange={(e) => setAvailableFrom(e.target.value)}
+            onChange={
+              canEdit ? (e) => setAvailableFrom(e.target.value) : undefined
+            }
+            readOnly={!canEdit}
+            disabled={!canEdit}
           />
         </Col>
       </Row>
@@ -140,17 +171,23 @@ export default function AssignmentEditor() {
             type="date"
             id="wd-until"
             value={availableUntil}
-            onChange={(e) => setAvailableUntil(e.target.value)}
+            onChange={
+              canEdit ? (e) => setAvailableUntil(e.target.value) : undefined
+            }
+            readOnly={!canEdit}
+            disabled={!canEdit}
           />
         </Col>
       </Row>
       <div className="mt-3">
-        <Button variant="secondary" className="me-2" onClick={goBack}>
-          Cancel
+        <Button variant="secondary" onClick={goBack}>
+          {canEdit ? "Cancel" : "Back"}
         </Button>
-        <Button variant="danger" onClick={handleSave}>
-          Save
-        </Button>
+        {canEdit && (
+          <Button variant="danger" className="ms-2" onClick={handleSave}>
+            Save
+          </Button>
+        )}
       </div>
     </div>
   );
