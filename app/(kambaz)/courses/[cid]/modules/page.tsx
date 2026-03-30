@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { addModule, editModule, updateModule, deleteModule } from "./reducer";
+import { updateModule, editModule, setModulesForCourse } from "./reducer";
 import { RootState } from "../../../store";
 import { ListGroup, ListGroupItem, FormControl } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
 import ModulesControls from "./ModulesControls";
 import LessonControlButtons from "./LessonControlButtons";
 import ModuleControlButtons from "./ModuleControlButtons";
+import * as coursesClient from "../../client";
 
 const EDITABLE_ROLES = ["FACULTY", "ADMIN", "TA"];
 
@@ -24,13 +25,42 @@ export default function Modules() {
   const canEdit =
     currentUser && EDITABLE_ROLES.includes((currentUser as any).role);
 
+  const courseId = cid as string;
+
+  const loadModules = async () => {
+    const list = await coursesClient.findModulesForCourse(courseId);
+    dispatch(setModulesForCourse({ courseId, modules: list }));
+  };
+
+  useEffect(() => {
+    if (!courseId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await coursesClient.findModulesForCourse(courseId);
+        if (!cancelled) {
+          dispatch(setModulesForCourse({ courseId, modules: list }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, dispatch]);
+
   return (
     <div className="wd-modules">
       <ModulesControls
         moduleName={moduleName}
         setModuleName={setModuleName}
-        addModule={() => {
-          dispatch(addModule({ name: moduleName, course: cid }));
+        addModule={async () => {
+          if (!moduleName.trim()) return;
+          await coursesClient.createModuleForCourse(courseId, {
+            name: moduleName,
+          });
+          await loadModules();
           setModuleName("");
         }}
         canEdit={canEdit}
@@ -58,9 +88,18 @@ export default function Modules() {
                         updateModule({ ...module, name: e.target.value }),
                       )
                     }
-                    onKeyDown={(e) => {
+                    onKeyDown={async (e) => {
                       if (e.key === "Enter") {
-                        dispatch(updateModule({ ...module, editing: false }));
+                        const name = (e.target as HTMLInputElement).value;
+                        const { editing: _e, ...rest } = module;
+                        await coursesClient.updateModuleApi({
+                          ...rest,
+                          name: name || module.name,
+                        });
+                        dispatch(
+                          updateModule({ ...module, name, editing: false }),
+                        );
+                        await loadModules();
                       }
                     }}
                     defaultValue={module.name}
@@ -69,8 +108,9 @@ export default function Modules() {
                 {canEdit && (
                   <ModuleControlButtons
                     moduleId={module._id}
-                    deleteModule={(moduleId) => {
-                      dispatch(deleteModule(moduleId));
+                    deleteModule={async (moduleId) => {
+                      await coursesClient.deleteModuleApi(moduleId);
+                      await loadModules();
                     }}
                     editModule={(moduleId) => dispatch(editModule(moduleId))}
                   />
