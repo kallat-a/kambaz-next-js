@@ -45,17 +45,18 @@ export default function Dashboard() {
   const [showAllCourses, setShowAllCourses] = useState(false);
 
   useEffect(() => {
-    if (!currentUser?._id) return;
     let cancelled = false;
     (async () => {
       try {
-        const [courseList, list] = await Promise.all([
-          coursesClient.fetchAllCourses(),
-          enrollmentsClient.findEnrollmentsForUser(currentUser._id),
-        ]);
-        if (!cancelled) {
-          dispatch(setCourses(courseList));
-          dispatch(setEnrollments(list));
+        const courseList = await coursesClient.fetchAllCourses();
+        if (!cancelled) dispatch(setCourses(courseList));
+        if (currentUser?._id) {
+          const list = await enrollmentsClient.findEnrollmentsForUser(
+            currentUser._id,
+          );
+          if (!cancelled) dispatch(setEnrollments(list));
+        } else if (!cancelled) {
+          dispatch(setEnrollments([]));
         }
       } catch (e) {
         console.error(e);
