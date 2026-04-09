@@ -73,6 +73,7 @@ export default function Signup() {
         <option value="FACULTY">Faculty</option>
         <option value="TA">TA</option>
         <option value="ADMIN">Admin</option>
+        <option value="USER">User</option>
       </select>
       <Button variant="primary" className="w-100 mb-2" onClick={signup}>
         Signup

@@ -32,9 +32,9 @@ export default function Profile() {
 
   const save = async () => {
     if (!currentUser?._id) return;
-    const updates = { ...profile };
+    const updates = { ...profile, _id: currentUser._id };
     if (!updates.password) delete updates.password;
-    const updated = await client.updateUser(currentUser._id, updates);
+    const updated = await client.updateUser(updates);
     dispatch(setCurrentUser(updated));
   };
 
