@@ -39,9 +39,13 @@ const modulesSlice = createSlice({
         payload: { courseId: string; modules: any[] };
       },
     ) => {
+      const withCourse = payload.modules.map((m: any) => ({
+        ...m,
+        course: payload.courseId,
+      }));
       state.modules = [
         ...state.modules.filter((m: any) => m.course !== payload.courseId),
-        ...payload.modules,
+        ...withCourse,
       ] as any;
     },
   },

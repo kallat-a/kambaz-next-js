@@ -40,12 +40,16 @@ export const createModuleForCourse = async (
 };
 
 export const updateModuleApi = async (
+  courseId: string,
   module: Record<string, unknown> & { _id: string },
 ) => {
-  const { data } = await api.put(`/api/modules/${module._id}`, module);
+  const { data } = await api.put(
+    `/api/courses/${courseId}/modules/${module._id}`,
+    module,
+  );
   return data;
 };
 
-export const deleteModuleApi = async (moduleId: string) => {
-  await api.delete(`/api/modules/${moduleId}`);
+export const deleteModuleApi = async (courseId: string, moduleId: string) => {
+  await api.delete(`/api/courses/${courseId}/modules/${moduleId}`);
 };

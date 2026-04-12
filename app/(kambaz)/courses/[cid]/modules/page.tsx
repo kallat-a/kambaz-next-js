@@ -92,7 +92,7 @@ export default function Modules() {
                       if (e.key === "Enter") {
                         const name = (e.target as HTMLInputElement).value;
                         const { editing: _e, ...rest } = module;
-                        await coursesClient.updateModuleApi({
+                        await coursesClient.updateModuleApi(courseId, {
                           ...rest,
                           name: name || module.name,
                         });
@@ -109,7 +109,7 @@ export default function Modules() {
                   <ModuleControlButtons
                     moduleId={module._id}
                     deleteModule={async (moduleId) => {
-                      await coursesClient.deleteModuleApi(moduleId);
+                      await coursesClient.deleteModuleApi(courseId, moduleId);
                       await loadModules();
                     }}
                     editModule={(moduleId) => dispatch(editModule(moduleId))}
