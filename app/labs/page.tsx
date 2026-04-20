@@ -28,6 +28,11 @@ export default function Labs() {
             Lab 4: State and Events
           </Link>
         </li>
+        <li>
+          <Link href="/labs/lab5" id="wd-lab5-link">
+            Lab 5: RESTful APIs (Express)
+          </Link>
+        </li>
       </ul>
       <p>
         <Link href="/" id="wd-kambaz-link">
@@ -35,8 +40,19 @@ export default function Labs() {
         </Link>
       </p>
       <p>
-        <a href="https://github.com/kallat-a/kambaz-next-js" id="wd-github">
-          GitHub Repository
+        <a
+          href="https://github.com/kallat-a/kambaz-next-js"
+          id="wd-github-next-js"
+        >
+          GitHub: kambaz-next-js (Next.js)
+        </a>
+      </p>
+      <p>
+        <a
+          href="https://github.com/kallat-a/kambaz-node-server-app/"
+          id="wd-github-node-server"
+        >
+          GitHub: kambaz-node-server-app (Express API)
         </a>
       </p>
     </div>

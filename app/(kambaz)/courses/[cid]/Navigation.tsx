@@ -22,9 +22,10 @@ export default function CourseNavigation({ cid }: { cid: string }) {
       : `/courses/${cid}/${slug}`;
   };
   const isActive = (label: string) => {
+    if (label === "People") return pathname.includes("people");
+    if (label === "Quizzes") return pathname.includes("/quizzes");
     const slug = label === "Home" ? "home" : label.toLowerCase();
-    const segment = label === "People" ? "table" : slug;
-    return pathname.includes(segment);
+    return pathname.includes(`/${slug}`);
   };
   return (
     <div id="wd-courses-navigation" className="wd list-group fs-5 rounded-0">

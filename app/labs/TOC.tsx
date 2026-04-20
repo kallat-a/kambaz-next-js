@@ -3,6 +3,8 @@ import { Nav, NavItem, NavLink } from "react-bootstrap";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const HTTP_SERVER = process.env.NEXT_PUBLIC_HTTP_SERVER;
+
 export default function TOC() {
   const pathname = usePathname();
   return (
@@ -53,6 +55,15 @@ export default function TOC() {
         </NavLink>
       </NavItem>
       <NavItem>
+        <NavLink
+          href="/labs/lab5"
+          as={Link}
+          className={`nav-link ${pathname.endsWith("lab5") ? "active" : ""}`}
+        >
+          Lab 5
+        </NavLink>
+      </NavItem>
+      <NavItem>
         <NavLink href="/" as={Link}>
           Kambaz
         </NavLink>
@@ -62,6 +73,26 @@ export default function TOC() {
           My GitHub
         </NavLink>
       </NavItem>
+      <NavItem>
+        <NavLink
+          href="https://github.com/kallat-a/kambaz-node-server-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Server GitHub
+        </NavLink>
+      </NavItem>
+      {HTTP_SERVER && (
+        <NavItem>
+          <NavLink
+            href={HTTP_SERVER}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Node server
+          </NavLink>
+        </NavItem>
+      )}
     </Nav>
   );
 }

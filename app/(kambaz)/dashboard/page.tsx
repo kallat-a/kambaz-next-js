@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewCourse, deleteCourse, updateCourse } from "../courses/reducer";
-import { enroll, unenroll } from "../enrollments/reducer";
+import { setCourses } from "../courses/reducer";
+import { setEnrollments } from "../enrollments/reducer";
+import * as enrollmentsClient from "../enrollments/client";
+import * as coursesClient from "../courses/client";
 import { RootState } from "../store";
 import {
   Row,
@@ -41,6 +43,43 @@ export default function Dashboard() {
     description: "New Description",
   });
   const [showAllCourses, setShowAllCourses] = useState(false);
+  const [catalogCourses, setCatalogCourses] = useState<any[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if (canEditCourse && currentUser?._id) {
+          const [teaching, all] = await Promise.all([
+            coursesClient.fetchTeachingCourses("current"),
+            coursesClient.fetchAllCourses(),
+          ]);
+          if (!cancelled) {
+            dispatch(setCourses(teaching));
+            setCatalogCourses(all);
+          }
+        } else if (currentUser?._id) {
+          const courseList = await coursesClient.fetchAllCourses();
+          if (!cancelled) dispatch(setCourses(courseList));
+        } else if (!cancelled) {
+          dispatch(setCourses([]));
+        }
+        if (currentUser?._id) {
+          const list = await enrollmentsClient.findEnrollmentsForUser(
+            currentUser._id,
+          );
+          if (!cancelled) dispatch(setEnrollments(list));
+        } else if (!cancelled) {
+          dispatch(setEnrollments([]));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser?._id, dispatch, canEditCourse]);
 
   const isEnrolled = (courseId: string) =>
     currentUser &&
@@ -48,10 +87,15 @@ export default function Dashboard() {
       (e: any) => e.user === currentUser._id && e.course === courseId,
     );
 
-  const displayCourses =
-    currentUser && !showAllCourses
-      ? courses.filter((c) => isEnrolled(c._id))
-      : courses;
+  const displayCourses = (() => {
+    if (!currentUser) return [];
+    if (canEditCourse) {
+      return showAllCourses ? catalogCourses : courses;
+    }
+    return showAllCourses
+      ? courses
+      : courses.filter((c) => isEnrolled(c._id));
+  })();
 
   return (
     <div className="p-4" id="wd-dashboard">
@@ -65,14 +109,35 @@ export default function Dashboard() {
               <Button
                 variant="warning"
                 id="wd-update-course-click"
-                onClick={() => dispatch(updateCourse(course))}
+                onClick={async () => {
+                  await coursesClient.updateCourseApi(course);
+                  const teaching = await coursesClient.fetchTeachingCourses(
+                    "current",
+                  );
+                  const all = await coursesClient.fetchAllCourses();
+                  dispatch(setCourses(teaching));
+                  setCatalogCourses(all);
+                }}
               >
                 Update
               </Button>
               <Button
                 variant="primary"
                 id="wd-add-new-course-click"
-                onClick={() => dispatch(addNewCourse(course))}
+                onClick={async () => {
+                  const { _id, ...rest } = course;
+                  await coursesClient.createCourse({
+                    ...rest,
+                    department: course.department ?? "D123",
+                    credits: course.credits ?? 3,
+                  });
+                  const teaching = await coursesClient.fetchTeachingCourses(
+                    "current",
+                  );
+                  const all = await coursesClient.fetchAllCourses();
+                  dispatch(setCourses(teaching));
+                  setCatalogCourses(all);
+                }}
               >
                 Add
               </Button>
@@ -81,7 +146,7 @@ export default function Dashboard() {
                 id="wd-enrollments-click"
                 onClick={() => setShowAllCourses((s) => !s)}
               >
-                Enrollments
+                {showAllCourses ? "My courses" : "All courses"}
               </Button>
             </div>
           </div>
@@ -102,15 +167,18 @@ export default function Dashboard() {
         </>
       )}
       {currentUser && !canEditCourse && (
-        <div className="mb-2">
+        <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
           <Button
             variant="primary"
             id="wd-enrollments-click"
             onClick={() => setShowAllCourses((s) => !s)}
           >
-            Enrollments
+            {showAllCourses ? "My courses" : "All courses"}
           </Button>
-          <hr />
+          <Link href="/dashboard/browse" className="btn btn-outline-primary">
+            Browse catalog
+          </Link>
+          <hr className="w-100" />
         </div>
       )}
       <h2 id="wd-dashboard-published">
@@ -149,14 +217,17 @@ export default function Dashboard() {
                           variant="danger"
                           size="sm"
                           className="me-2"
-                          onClick={() =>
-                            dispatch(
-                              unenroll({
-                                user: currentUser._id,
-                                course: c._id,
-                              }),
-                            )
-                          }
+                          onClick={async () => {
+                            await enrollmentsClient.unenrollFromCourse(
+                              currentUser._id,
+                              c._id,
+                            );
+                            const list =
+                              await enrollmentsClient.findEnrollmentsForUser(
+                                currentUser._id,
+                              );
+                            dispatch(setEnrollments(list));
+                          }}
                         >
                           Unenroll
                         </Button>
@@ -165,14 +236,17 @@ export default function Dashboard() {
                           variant="success"
                           size="sm"
                           className="me-2"
-                          onClick={() =>
-                            dispatch(
-                              enroll({
-                                user: currentUser._id,
-                                course: c._id,
-                              }),
-                            )
-                          }
+                          onClick={async () => {
+                            await enrollmentsClient.enrollInCourse(
+                              currentUser._id,
+                              c._id,
+                            );
+                            const list =
+                              await enrollmentsClient.findEnrollmentsForUser(
+                                currentUser._id,
+                              );
+                            dispatch(setEnrollments(list));
+                          }}
                         >
                           Enroll
                         </Button>
@@ -185,30 +259,38 @@ export default function Dashboard() {
                         <Button variant="primary">Go</Button>
                       </Link>
                     )}
-                    {canEditCourse && (
-                      <>
-                        <Button
-                          variant="warning"
-                          id="wd-edit-course-click"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setCourse(c);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="danger"
-                          id="wd-delete-course-click"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            dispatch(deleteCourse(c._id));
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </>
-                    )}
+                    {canEditCourse &&
+                      String(c.author) === String(currentUser._id) && (
+                        <>
+                          <Button
+                            variant="warning"
+                            id="wd-edit-course-click"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCourse(c);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="danger"
+                            id="wd-delete-course-click"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              await coursesClient.deleteCourseApi(c._id);
+                              const teaching =
+                                await coursesClient.fetchTeachingCourses(
+                                  "current",
+                                );
+                              const all = await coursesClient.fetchAllCourses();
+                              dispatch(setCourses(teaching));
+                              setCatalogCourses(all);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </>
+                      )}
                   </div>
                 </CardBody>
               </Card>

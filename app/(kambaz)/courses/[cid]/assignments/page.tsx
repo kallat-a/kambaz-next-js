@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../store";
-import { deleteAssignment } from "../../assignments/reducer";
+import {
+  deleteAssignment,
+  mergeAssignmentsForCourse,
+} from "../../assignments/reducer";
+import * as assignmentsApi from "../../assignments/client";
 import { FaMagnifyingGlass, FaPlus, FaTrash } from "react-icons/fa6";
 import { BsGripVertical } from "react-icons/bs";
 import { IoEllipsisVertical } from "react-icons/io5";
@@ -17,7 +21,7 @@ import {
   Modal,
 } from "react-bootstrap";
 import LessonControlButtons from "../modules/LessonControlButtons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -47,9 +51,39 @@ export default function Assignments() {
   const canEdit =
     currentUser && EDITABLE_ROLES.includes((currentUser as any).role);
 
-  const handleDeleteConfirm = () => {
+  useEffect(() => {
+    if (!cid) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await assignmentsApi.findAssignmentsForCourse(
+          cid as string,
+        );
+        if (!cancelled) {
+          dispatch(
+            mergeAssignmentsForCourse({
+              courseId: cid as string,
+              list,
+            }),
+          );
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [cid, dispatch]);
+
+  const handleDeleteConfirm = async () => {
     if (deleteTarget) {
-      dispatch(deleteAssignment(deleteTarget));
+      try {
+        await assignmentsApi.deleteAssignment(deleteTarget);
+        dispatch(deleteAssignment(deleteTarget));
+      } catch (e) {
+        console.error(e);
+      }
       setDeleteTarget(null);
     }
   };

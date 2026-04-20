@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../../store";
 import { addAssignment, updateAssignment } from "../../../assignments/reducer";
+import * as assignmentsApi from "../../../assignments/client";
 import { useState, useEffect } from "react";
 import { FormLabel, FormControl, Button, Row, Col } from "react-bootstrap";
 
@@ -58,6 +59,30 @@ export default function AssignmentEditor() {
   }, [isNew, existing]);
 
   useEffect(() => {
+    if (isNew || !aid || existing) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const a = await assignmentsApi.findAssignmentById(aid as string);
+        if (cancelled || !a) return;
+        setTitle(a.title ?? emptyAssignment.title);
+        setDescription(a.description ?? "");
+        setPoints(a.points ?? 100);
+        setDueDate(a.dueDate ?? emptyAssignment.dueDate);
+        setAvailableFrom(a.availableFrom ?? emptyAssignment.availableFrom);
+        setAvailableUntil(
+          (a as any).availableUntil ?? emptyAssignment.availableUntil,
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isNew, aid, existing]);
+
+  useEffect(() => {
     if (isNew && !canEdit && cid) {
       router.replace(`/courses/${cid}/assignments`);
     }
@@ -65,7 +90,7 @@ export default function AssignmentEditor() {
 
   const goBack = () => router.push(`/courses/${cid}/assignments`);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const payload = {
       title,
       description,
@@ -75,12 +100,24 @@ export default function AssignmentEditor() {
       availableUntil,
       course: cid,
     };
-    if (isNew) {
-      dispatch(addAssignment(payload));
-    } else {
-      dispatch(updateAssignment({ ...payload, _id: aid as string }));
+    try {
+      if (isNew) {
+        const created = await assignmentsApi.createAssignmentForCourse(
+          cid as string,
+          payload,
+        );
+        dispatch(addAssignment(created));
+      } else {
+        const updated = await assignmentsApi.updateAssignment({
+          ...payload,
+          _id: aid as string,
+        });
+        dispatch(updateAssignment(updated));
+      }
+      goBack();
+    } catch (e) {
+      console.error(e);
     }
-    goBack();
   };
 
   if (isNew && !canEdit) {
