@@ -5,6 +5,11 @@ export const fetchAllCourses = async () => {
   return data;
 };
 
+export const fetchTeachingCourses = async (userId: string) => {
+  const { data } = await api.get(`/api/users/${userId}/courses-teaching`);
+  return data;
+};
+
 export const findMyCourses = async (userId: string) => {
   const { data } = await api.get(`/api/users/${userId}/courses`);
   return data;
