@@ -216,7 +216,11 @@ export default function Quizzes() {
                           </Dropdown.Toggle>
                           <Dropdown.Menu>
                             <Dropdown.Item
-                              href={`/courses/${courseId}/quizzes/${q._id}/edit`}
+                              onClick={() =>
+                                router.push(
+                                  `/courses/${courseId}/quizzes/${q._id}/edit`,
+                                )
+                              }
                             >
                               Edit
                             </Dropdown.Item>
