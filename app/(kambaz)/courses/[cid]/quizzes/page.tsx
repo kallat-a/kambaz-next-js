@@ -5,14 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
-import {
-  Button,
-  Dropdown,
-  Form,
-  ListGroup,
-  ListGroupItem,
-  Modal,
-} from "react-bootstrap";
+import { Button, Dropdown, ListGroup, ListGroupItem, Modal } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
 import { IoEllipsisVertical } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa6";
@@ -20,6 +13,7 @@ import * as quizzesClient from "./client";
 import { availabilityLabel } from "./utils";
 import "./quiz-canvas.css";
 import LessonControlButtons from "../modules/LessonControlButtons";
+import GreenCheckmark from "../modules/GreenCheckmark";
 
 const EDITABLE_ROLES = ["FACULTY", "ADMIN", "TA"];
 
@@ -161,24 +155,6 @@ export default function Quizzes() {
                   <BsGripVertical className="me-2 fs-3" />
                   <div className="flex-grow-1">
                     <div className="d-flex align-items-center gap-2 flex-wrap">
-                      <Form.Check
-                        type="checkbox"
-                        id={`wd-quiz-publish-${q._id}`}
-                        className="wd-quiz-published-checkbox"
-                        checked={!!q.published}
-                        disabled={!canEdit}
-                        onChange={() => {
-                          if (canEdit) {
-                            handleTogglePublish(q._id);
-                          }
-                        }}
-                        title={q.published ? "Published — click to unpublish" : "Not published — click to publish"}
-                        aria-label={
-                          q.published
-                            ? "Published; click to unpublish"
-                            : "Not published; click to publish"
-                        }
-                      />
                       <Link
                         href={`/courses/${courseId}/quizzes/${q._id}`}
                         className="wd-quiz-link fw-bold text-danger"
@@ -201,43 +177,41 @@ export default function Quizzes() {
                         ` | Last score: ${q.lastScore}/${q.lastMaxScore ?? q.points}`}
                     </div>
                   </div>
-                  <div className="d-flex align-items-center">
-                    <LessonControlButtons />
+                  <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                    <GreenCheckmark published={!!q.published} />
                     {canEdit && (
-                      <>
-                        <Dropdown align="end" className="ms-2">
-                          <Dropdown.Toggle
-                            variant="light"
-                            size="sm"
-                            id={`wd-quiz-menu-${q._id}`}
-                            className="p-0 border-0 bg-transparent"
+                      <Dropdown align="end">
+                        <Dropdown.Toggle
+                          variant="light"
+                          size="sm"
+                          id={`wd-quiz-menu-${q._id}`}
+                          className="wd-quiz-menu-toggle p-0 border-0 bg-transparent"
+                        >
+                          <IoEllipsisVertical className="fs-4" />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          <Dropdown.Item
+                            onClick={() =>
+                              router.push(
+                                `/courses/${courseId}/quizzes/${q._id}/edit`,
+                              )
+                            }
                           >
-                            <IoEllipsisVertical className="fs-4" />
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu>
-                            <Dropdown.Item
-                              onClick={() =>
-                                router.push(
-                                  `/courses/${courseId}/quizzes/${q._id}/edit`,
-                                )
-                              }
-                            >
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() => setDeleteTarget(q._id)}
-                              className="text-danger"
-                            >
-                              Delete
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              onClick={() => handleTogglePublish(q._id)}
-                            >
-                              {q.published ? "Unpublish" : "Publish"}
-                            </Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </>
+                            Edit
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => setDeleteTarget(q._id)}
+                            className="text-danger"
+                          >
+                            Delete
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => handleTogglePublish(q._id)}
+                          >
+                            {q.published ? "Unpublish" : "Publish"}
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
                     )}
                   </div>
                 </div>

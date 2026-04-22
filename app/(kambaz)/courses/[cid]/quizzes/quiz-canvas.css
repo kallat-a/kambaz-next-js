@@ -221,6 +221,12 @@
   margin-top: 1rem;
 }
 
+/* Icon-only quiz row menu: hide Bootstrap dropdown caret */
+.wd-quiz-menu-toggle.dropdown-toggle::after {
+  display: none;
+}
+
+/* Quiz editor header publish checkbox (not used on quiz list rows) */
 .wd-quiz-published-checkbox.form-check {
   margin-bottom: 0;
   min-height: unset;
