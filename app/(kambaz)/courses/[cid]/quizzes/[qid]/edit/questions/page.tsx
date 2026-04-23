@@ -200,6 +200,13 @@ export default function QuizQuestionsEditor() {
     setEditingId(null);
   };
 
+  const deleteQuestion = async (id: string) => {
+    await persistQuestions(questions.filter((x: any) => x._id !== id));
+    if (editingId === id) {
+      setEditingId(null);
+    }
+  };
+
   const cancelEdit = async () => {
     await loadQuestions();
     setEditingId(null);
@@ -259,13 +266,22 @@ export default function QuizQuestionsEditor() {
                       {q.type.replace(/_/g, " ")} · {q.points} pts
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={() => setEditingId(q._id)}
-                  >
-                    Edit
-                  </Button>
+                  <div className="d-flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline-secondary"
+                      onClick={() => setEditingId(q._id)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      onClick={() => deleteQuestion(q._id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </Card.Body>
             </Card>
@@ -653,6 +669,12 @@ export default function QuizQuestionsEditor() {
                 onClick={() => saveQuestion(q._id)}
               >
                 Update Question
+              </Button>
+              <Button
+                variant="outline-danger"
+                onClick={() => deleteQuestion(q._id)}
+              >
+                Delete Question
               </Button>
             </div>
           </div>
